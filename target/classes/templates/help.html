@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+     // Apply theme immediately to prevent flash
+     (function() {
+       const savedTheme = localStorage.getItem("theme") || "light";
+       if (savedTheme === "dark") {
+         document.documentElement.setAttribute("data-theme", "dark");
+       } else if (savedTheme === "system") {
+         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+         document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+       } else {
+         document.documentElement.setAttribute("data-theme", "light");
+       }
+     })();
+   </script>
+    <title th:text="#{help.title}">Help - Medical Management System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="bi bi-heart-pulse sidebar-logo-icon"></i>
+                    <span class="sidebar-logo-text">MedManager</span>
+                </div>
+                <button class="sidebar-toggle">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-content">
+                <!-- Admin Menu -->
+                <div sec:authorize="hasRole('ADMIN')">
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-menu-item">
+                            <a th:href="@{/admin/dashboard}" class="sidebar-menu-link">
+                                <i class="bi bi-speedometer2 sidebar-menu-icon"></i>
+                                <span class="sidebar-menu-text" th:text="#{nav.dashboard}">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a th:href="@{/admin/users}" class="sidebar-menu-link">
+                                <i class="bi bi-people sidebar-menu-icon"></i>
+                                <span class="sidebar-menu-text" th:text="#{nav.users}">Users</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a th:href="@{/admin/pacienti}" class="sidebar-menu-link">
+                                <i class="bi bi-person-vcard sidebar-menu-icon"></i>
+                                <span class="sidebar-menu-text" th:text="#{nav.patients}">Patients</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a th:href="@{/admin/medicamente}" class="sidebar-menu-link">
+                                <i class="bi bi-capsule sidebar-menu-icon"></i>
+                                <span class="sidebar-menu-text" th:text="#{nav.medications}">Medications</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- User Menu -->
+                <div sec:authorize="hasRole('USER')">
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-menu-item">
+                            <a th:href="@{/user/dashboard}" class="sidebar-menu-link">
+                                <i class="bi bi-speedometer2 sidebar-menu-icon"></i>
+                                <span class="sidebar-menu-text" th:text="#{nav.dashboard}">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a th:href="@{/user/pacienti}" class="sidebar-menu-link">
+                                <i class="bi bi-person-vcard sidebar-menu-icon"></i>
+                                <span class="sidebar-menu-text" th:text="#{nav.patients}">Patients</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a th:href="@{/user/medicamente}" class="sidebar-menu-link">
+                                <i class="bi bi-capsule sidebar-menu-icon"></i>
+                                <span class="sidebar-menu-text" th:text="#{nav.medications}">Medications</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-divider"></div>
+                
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/settings}" class="sidebar-menu-link">
+                            <i class="bi bi-gear sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text" th:text="#{nav.settings}">Settings</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/help}" class="sidebar-menu-link active">
+                            <i class="bi bi-question-circle sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text" th:text="#{nav.help}">Help</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post" style="width: 100%;">
+                    <button type="submit" class="btn btn-outline" style="width: 100%;">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="sidebar-menu-text" th:text="#{nav.logout}">Logout</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="header">
+                <h1 class="header-title" th:text="#{help.title}">Help Center</h1>
+                
+                <div class="header-actions">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle">
+                            <div class="user-avatar">
+                                <span sec:authentication="name">U</span>
+                            </div>
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+            
+            <main class="content">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div class="help-tabs">
+                        <div class="help-tab active" onclick="switchTab('getting-started')" th:text="#{help.getting.started}">Getting Started</div>
+                        <div class="help-tab" onclick="switchTab('user-guide')" th:text="#{help.user.guide}">User Guide</div>
+                        <div class="help-tab" onclick="switchTab('admin-guide')" th:text="#{help.admin.guide}">Admin Guide</div>
+                        <div class="help-tab" onclick="switchTab('faq')" th:text="#{help.faq}">FAQ</div>
+                        <div class="help-tab" onclick="switchTab('contact')" th:text="#{help.contact}">Contact Support</div>
+                    </div>
+                    
+                    <!-- Getting Started Section -->
+                    <div id="getting-started" class="help-section">
+                        <div class="help-card">
+                            <h2><i class="bi bi-rocket-takeoff icon"></i> <span th:text="#{help.welcome}">Welcome to MedManager</span></h2>
+                            <p>MedManager is a comprehensive medical management system designed to help healthcare professionals manage patients, medications, and administrative tasks efficiently.</p>
+                            
+                            <div class="tip">
+                                <strong>Tip:</strong> Bookmark the dashboard page for quick access to the system.
+                            </div>
+                            
+                            <h3 th:text="#{help.system.requirements}">System Requirements</h3>
+                            <p>MedManager works best with the following:</p>
+                            <ul>
+                                <li>Modern web browsers (Chrome, Firefox, Safari, Edge)</li>
+                                <li>Internet connection</li>
+                                <li>Screen resolution of at least 1280x720</li>
+                            </ul>
+                            
+                            <h3 th:text="#{help.first.steps}">First Steps</h3>
+                            <ol>
+                                <li>Log in with your provided credentials</li>
+                                <li>Explore the dashboard to get familiar with key metrics</li>
+                                <li>Update your profile information in Settings</li>
+                                <li>Check the User Guide for detailed instructions</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="help-card">
+                            <h2><i class="bi bi-layout-text-window icon"></i> <span th:text="#{help.interface}">Understanding the Interface</span></h2>
+                            
+                            <h3 th:text="#{help.navigation}">Navigation</h3>
+                            <p>The sidebar on the left contains all main navigation options:</p>
+                            <ul>
+                                <li><strong th:text="#{nav.dashboard}">Dashboard</strong>: Overview of key metrics and recent activity</li>
+                                <li><strong th:text="#{nav.users}">Users</strong>: Manage system users (Admin only)</li>
+                                <li><strong th:text="#{nav.patients}">Patients</strong>: View and manage patient records</li>
+                                <li><strong th:text="#{nav.medications}">Medications</strong>: Browse and manage medication inventory</li>
+                                <li><strong th:text="#{nav.settings}">Settings</strong>: Configure your account and preferences</li>
+                                <li><strong th:text="#{nav.help}">Help</strong>: Access this help center</li>
+                            </ul>
+                            
+                            <h3 th:text="#{help.common.actions}">Common Actions</h3>
+                            <ul>
+                                <li>Use the "+" buttons to add new records</li>
+                                <li>Click on table rows to view details</li>
+                                <li>Use the search boxes to filter information</li>
+                                <li>Click the sidebar toggle button to collapse or expand the sidebar</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- User Guide Section -->
+                    <div id="user-guide" class="help-section" style="display: none;">
+                        <div class="help-card">
+                            <h2><i class="bi bi-person-vcard icon"></i> <span th:text="#{help.managing.patients}">Managing Patients</span></h2>
+                            
+                            <h3 th:text="#{help.viewing.patient.list}">Viewing Patient List</h3>
+                            <p>The Patients page displays all patients assigned to you. You can:</p>
+                            <ul>
+                                <li>Search for patients by name</li>
+                                <li>Sort the list by clicking on column headers</li>
+                                <li>View patient details by clicking "View Details"</li>
+                            </ul>
+                            
+                            <h3 th:text="#{help.patient.details}">Patient Details</h3>
+                            <p>The patient details page shows comprehensive information including:</p>
+                            <ul>
+                                <li>Personal information</li>
+                                <li>Medical history</li>
+                                <li>Current medications</li>
+                                <li>Recent visits</li>
+                            </ul>
+                            
+                            <div class="warning">
+                                <strong>Important:</strong> Always verify patient identity before updating records.
+                            </div>
+                        </div>
+                        
+                        <div class="help-card">
+                            <h2><i class="bi bi-capsule icon"></i> <span th:text="#{help.working.with.medications}">Working with Medications</span></h2>
+                            
+                            <h3 th:text="#{help.browsing.medications}">Browsing Medications</h3>
+                            <p>The Medications page allows you to:</p>
+                            <ul>
+                                <li>View all available medications</li>
+                                <li>Search by medication name or category</li>
+                                <li>Check stock status</li>
+                                <li>Prescribe medications to patients</li>
+                            </ul>
+                            
+                            <h3 th:text="#{help.prescribing.medications}">Prescribing Medications</h3>
+                            <p>To prescribe a medication:</p>
+                            <ol>
+                                <li>Find the medication in the list</li>
+                                <li>Click the "Prescribe" button</li>
+                                <li>Select a patient from the dropdown</li>
+                                <li>Enter dosage instructions</li>
+                                <li>Confirm the prescription</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <!-- Admin Guide Section -->
+                    <div id="admin-guide" class="help-section" style="display: none;">
+                        <div class="help-card">
+                            <h2><i class="bi bi-people icon"></i> <span th:text="#{help.user.management}">User Management</span></h2>
+                            
+                            <h3 th:text="#{help.adding.users}">Adding New Users</h3>
+                            <p>To add a new user to the system:</p>
+                            <ol>
+                                <li>Navigate to the Users page</li>
+                                <li>Click the "Add User" button</li>
+                                <li>Fill in the required information</li>
+                                <li>Select the appropriate role (Admin or User)</li>
+                                <li>Click "Create User"</li>
+                            </ol>
+                            
+                            <h3 th:text="#{help.editing.users}">Editing User Information</h3>
+                            <p>To edit an existing user:</p>
+                            <ol>
+                                <li>Find the user in the list</li>
+                                <li>Click the edit (pencil) icon</li>
+                                <li>Update the necessary information</li>
+                                <li>Click "Update User" to save changes</li>
+                            </ol>
+                            
+                            <div class="warning">
+                                <strong>Important:</strong> Be careful when deleting users. This action cannot be undone and may affect patient records associated with that user.
+                            </div>
+                        </div>
+                        
+                        <div class="help-card">
+                            <h2><i class="bi bi-database icon"></i> <span th:text="#{help.system.administration}">System Administration</span></h2>
+                            
+                            <h3 th:text="#{help.backup.restore}">Backup and Restore</h3>
+                            <p>Regular backups are essential for data security:</p>
+                            <ul>
+                                <li>Automated backups occur daily at midnight</li>
+                                <li>Manual backups can be initiated from the System Settings page</li>
+                                <li>To restore from a backup, contact the IT department</li>
+                            </ul>
+                            
+                            <h3 th:text="#{help.system.logs}">System Logs</h3>
+                            <p>System logs help track activity and troubleshoot issues:</p>
+                            <ul>
+                                <li>Access logs show login/logout events</li>
+                                <li>Action logs record all data modifications</li>
+                                <li>Error logs capture system issues</li>
+                            </ul>
+                            
+                            <h3 th:text="#{help.performance.monitoring}">Performance Monitoring</h3>
+                            <p>Monitor system performance through the Admin Dashboard:</p>
+                            <ul>
+                                <li>Server status and uptime</li>
+                                <li>Database performance metrics</li>
+                                <li>User activity levels</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Section -->
+                    <div id="faq" class="help-section" style="display: none;">
+                        <div class="help-card">
+                            <h2><i class="bi bi-question-circle icon"></i> <span th:text="#{help.faq}">Frequently Asked Questions</span></h2>
+                            
+                            <h3>General Questions</h3>
+                            
+                            <p><strong>Q: How do I reset my password?</strong></p>
+                            <p>A: Go to the Settings page and use the "Change Password" section. You'll need to enter your current password first.</p>
+                            
+                            <p><strong>Q: Can I access the system from my mobile device?</strong></p>
+                            <p>A: Yes, the system is responsive and works on tablets and smartphones, though some advanced features work best on desktop.</p>
+                            
+                            <p><strong>Q: How do I report a bug or issue?</strong></p>
+                            <p>A: Use the Contact Support tab in this Help Center to submit a detailed report.</p>
+                            
+                            <h3>User Role Questions</h3>
+                            
+                            <p><strong>Q: What's the difference between Admin and User roles?</strong></p>
+                            <p>A: Admins can manage users, system settings, and have full access to all records. Users can only access patient and medication data relevant to their work.</p>
+                            
+                            <p><strong>Q: Can I change my role?</strong></p>
+                            <p>A: No, roles are assigned by system administrators. Contact your administrator if you need a role change.</p>
+                            
+                            <h3>Data Management Questions</h3>
+                            
+                            <p><strong>Q: Is patient data secure?</strong></p>
+                            <p>A: Yes, all data is encrypted and the system complies with healthcare data protection regulations.</p>
+                            
+                            <p><strong>Q: How long is data retained in the system?</strong></p>
+                            <p>A: Patient records are retained according to legal requirements, typically 7-10 years depending on your jurisdiction.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Support Section -->
+                    <div id="contact" class="help-section" style="display: none;">
+                        <div class="help-card">
+                            <h2><i class="bi bi-headset icon"></i> <span th:text="#{help.contact}">Contact Support</span></h2>
+                            
+                            <p>Our support team is available to help you with any questions or issues you may encounter.</p>
+                            
+                            <h3 th:text="#{help.support.hours}">Support Hours</h3>
+                            <p>Monday - Friday: 8:00 AM - 6:00 PM</p>
+                            <p>Weekend: Emergency support only</p>
+                            
+                            <h3 th:text="#{help.contact.methods}">Contact Methods</h3>
+                            <ul>
+                                <li><strong>Email:</strong> support@medmanager.com</li>
+                                <li><strong>Phone:</strong> (555) 123-4567</li>
+                                <li><strong>Live Chat:</strong> Available during business hours</li>
+                            </ul>
+                            
+                            <h3 th:text="#{help.submit.ticket}">Submit a Support Ticket</h3>
+                            <form>
+                                <div style="margin-bottom: 15px;">
+                                    <label for="issue-type" style="display: block; margin-bottom: 8px; font-weight: 500;">Issue Type</label>
+                                    <select id="issue-type" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                                        <option value="">Select an issue type</option>
+                                        <option value="technical">Technical Problem</option>
+                                        <option value="account">Account Issue</option>
+                                        <option value="data">Data Question</option>
+                                        <option value="feature">Feature Request</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="margin-bottom: 15px;">
+                                    <label for="subject" style="display: block; margin-bottom: 8px; font-weight: 500;">Subject</label>
+                                    <input type="text" id="subject" placeholder="Brief description of the issue" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                                </div>
+                                
+                                <div style="margin-bottom: 15px;">
+                                    <label for="description" style="display: block; margin-bottom: 8px; font-weight: 500;">Description</label>
+                                    <textarea id="description" rows="5" placeholder="Please provide details about your issue" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;"></textarea>
+                                </div>
+                                
+                                <div style="margin-bottom: 15px;">
+                                    <label for="priority" style="display: block; margin-bottom: 8px; font-weight: 500;">Priority</label>
+                                    <select id="priority" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                                        <option value="low">Low - No impact on work</option>
+                                        <option value="medium" selected>Medium - Minor impact</option>
+                                        <option value="high">High - Significant impact</option>
+                                        <option value="critical">Critical - Cannot work</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="margin-bottom: 15px;">
+                                    <label for="attachment" style="display: block; margin-bottom: 8px; font-weight: 500;">Attachment (optional)</label>
+                                    <input type="file" id="attachment" style="width: 100%;">
+                                    <small style="color: #6c757d; display: block; margin-top: 5px;">Max file size: 10MB</small>
+                                </div>
+                                
+                                <button type="submit" style="background-color: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Submit Ticket</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script th:src="@{/js/main.js}"></script>
+    <script>
+        function switchTab(tabId) {
+            // Hide all sections
+            document.querySelectorAll('.help-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show the selected section
+            document.getElementById(tabId).style.display = 'block';
+            
+            // Update active tab
+            document.querySelectorAll('.help-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Find the clicked tab and make it active
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base_layout}">
+<head>
+    <title>Validation Error</title>
+    <style>
+        .validation-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .validation-error h3 {
+            color: #721c24;
+            margin-top: 0;
+        }
+        .validation-error ul {
+            margin-bottom: 0;
+        }
+        .back-button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <div class="validation-error">
+            <h3>Validation Error</h3>
+            <p>Please correct the following errors:</p>
+            <ul>
+                <li th:each="error : ${errors.entrySet()}" th:text="${error.key + ': ' + error.value}"></li>
+            </ul>
+        </div>
+
+        <div class="back-button">
+            <button class="btn btn-primary" onclick="window.history.back()">Go Back</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

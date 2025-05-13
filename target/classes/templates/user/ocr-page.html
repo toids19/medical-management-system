@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR pentru Documente Medicale</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <style>
+        .ocr-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #6c757d;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-button:hover {
+            color: #0d6efd;
+        }
+
+        .back-button i {
+            margin-right: 0.5rem;
+        }
+
+        .tab-container {
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid #0d6efd;
+            color: #0d6efd;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 2px dashed #0d6efd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: rgba(13, 110, 253, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            background-color: rgba(13, 110, 253, 0.1);
+            border-color: #0a58ca;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #0d6efd;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(13, 110, 253, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #0d6efd;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ocr-results {
+            display: none;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .ocr-results pre {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .patient-form {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .file-preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin: 20px 0;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .file-info i {
+            font-size: 24px;
+            margin-right: 10px;
+            color: #0d6efd;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-right: auto;
+        }
+
+        .file-size {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+<div class="ocr-container">
+    <a href="/user/dashboard" class="back-button">
+        <i class="bi bi-arrow-left"></i> Înapoi la Dashboard
+    </a>
+
+    <h1>OCR pentru Documente Medicale</h1>
+
+    <div class="tab-container">
+        <div class="tabs">
+            <div class="tab active" data-tab="extract">Extragere Text</div>
+            <div class="tab" data-tab="help">Ajutor</div>
+        </div>
+
+        <div class="tab-content active" id="extract-tab">
+            <p>Încărcați o imagine sau un document PDF pentru a extrage informații despre pacient folosind tehnologia OCR (Recunoaștere Optică a Caracterelor).</p>
+
+            <div class="upload-area" id="uploadArea1">
+                <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                <h3>Trageți și plasați fișierul aici</h3>
+                <p>sau</p>
+                <button type="button" class="btn btn-primary" id="browseButton1">
+                    <i class="bi bi-folder me-2"></i>Selectați fișierul
+                </button>
+                <input type="file" id="fileInput1" class="file-input" accept=".jpg,.jpeg,.png,.pdf" />
+                <p class="mt-3 text-muted">Formate acceptate: JPG, PNG, PDF</p>
+            </div>
+
+            <div class="loading-spinner" id="loadingSpinner1">
+                <div class="spinner"></div>
+                <p class="mt-3">Se procesează documentul...</p>
+            </div>
+
+            <div class="ocr-results" id="ocrResults1">
+                <h4>Text extras:</h4>
+                <pre id="extractedText"></pre>
+
+                <div class="patient-form">
+                    <h4>Informații pacient detectate:</h4>
+                    <form id="patientForm" th:action="@{/user/ocr/save-patient}" method="post">
+                        <div class="form-group">
+                            <label for="nume" class="form-label">Nume:</label>
+                            <input type="text" id="nume" name="nume" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label for="prenume" class="form-label">Prenume:</label>
+                            <input type="text" id="prenume" name="prenume" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label for="cnp" class="form-label">CNP:</label>
+                            <input type="text" id="cnp" name="cnp" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label for="observatii" class="form-label">Observații:</label>
+                            <textarea id="observatii" name="observatii" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-person-plus me-2"></i>Salvează pacient
+                            </button>
+                            <button type="button" class="btn btn-primary" id="downloadTextBtn">
+                                <i class="bi bi-download me-2"></i>Descarcă text
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="resetBtn1">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>Resetează
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="help-tab">
+            <h3>Instrucțiuni de utilizare</h3>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4><i class="bi bi-info-circle me-2 text-primary"></i>Despre OCR</h4>
+                    <p>OCR (Optical Character Recognition) este o tehnologie care permite extragerea textului din imagini și documente scanate. Această funcționalitate vă ajută să:</p>
+                    <ul>
+                        <li>Extrageți informații despre pacienți din documente medicale</li>
+                        <li>Creați automat fișe de pacienți din documentele scanate</li>
+                        <li>Economisiți timp prin reducerea introducerii manuale a datelor</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4><i class="bi bi-file-earmark-text me-2 text-success"></i>Formate acceptate</h4>
+                    <p>Puteți încărca următoarele tipuri de fișiere:</p>
+                    <ul>
+                        <li><strong>Imagini</strong>: JPG, JPEG, PNG</li>
+                        <li><strong>Documente</strong>: PDF</li>
+                    </ul>
+                    <p>Pentru rezultate optime, asigurați-vă că documentele sunt clare, bine iluminate și textul este lizibil.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4><i class="bi bi-lightbulb me-2 text-warning"></i>Sfaturi pentru rezultate mai bune</h4>
+                    <ul>
+                        <li>Utilizați imagini clare, cu rezoluție bună</li>
+                        <li>Asigurați-vă că documentul este bine iluminat și nu are umbre</li>
+                        <li>Evitați documentele înclinate sau distorsionate</li>
+                        <li>Verificați întotdeauna datele extrase înainte de a le salva</li>
+                        <li>Pentru documente PDF cu mai multe pagini, sistemul va procesa toate paginile</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-success mt-4" th:if="${success}" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${success}"></span>
+    </div>
+
+    <div class="alert alert-danger mt-4" th:if="${error}" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${error}"></span>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab functionality
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // Add active class to current tab and content
+                this.classList.add('active');
+                document.getElementById(tabId + '-tab').classList.add('active');
+            });
+        });
+
+        // Extract tab functionality
+        const uploadArea1 = document.getElementById('uploadArea1');
+        const fileInput1 = document.getElementById('fileInput1');
+        const browseButton1 = document.getElementById('browseButton1');
+        const loadingSpinner1 = document.getElementById('loadingSpinner1');
+        const ocrResults1 = document.getElementById('ocrResults1');
+        const extractedText = document.getElementById('extractedText');
+        const downloadTextBtn = document.getElementById('downloadTextBtn');
+        const resetBtn1 = document.getElementById('resetBtn1');
+
+        // Create tab functionality
+        const uploadArea2 = document.getElementById('uploadArea2');
+        const fileInput2 = document.getElementById('fileInput2');
+        const browseButton2 = document.getElementById('browseButton2');
+        const loadingSpinner2 = document.getElementById('loadingSpinner2');
+        const resetBtn2 = document.getElementById('resetBtn2');
+        const createForm = document.getElementById('createForm');
+
+        // Extract tab event listeners
+        browseButton1.addEventListener('click', function() {
+            fileInput1.click();
+        });
+
+        fileInput1.addEventListener('change', function() {
+            if (fileInput1.files.length > 0) {
+                const fileName = fileInput1.files[0].name;
+                const fileSize = formatFileSize(fileInput1.files[0].size);
+
+                uploadArea1.innerHTML = `
+                        <i class="bi bi-file-earmark-check upload-icon"></i>
+                        <h3>Fișier selectat</h3>
+                        <div class="file-info">
+                            <i class="bi bi-file-earmark"></i>
+                            <span class="file-name">${fileName}</span>
+                            <span class="file-size">${fileSize}</span>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="processBtn1">
+                            <i class="bi bi-cpu me-2"></i>Procesează documentul
+                        </button>
+                    `;
+
+                document.getElementById('processBtn1').addEventListener('click', function() {
+                    processExtractFile();
+                });
+            }
+        });
+
+        uploadArea1.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea1.classList.add('dragover');
+        });
+
+        uploadArea1.addEventListener('dragleave', function() {
+            uploadArea1.classList.remove('dragover');
+        });
+
+        uploadArea1.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea1.classList.remove('dragover');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput1.files = e.dataTransfer.files;
+                const fileName = fileInput1.files[0].name;
+                const fileSize = formatFileSize(fileInput1.files[0].size);
+
+                uploadArea1.innerHTML = `
+                        <i class="bi bi-file-earmark-check upload-icon"></i>
+                        <h3>Fișier selectat</h3>
+                        <div class="file-info">
+                            <i class="bi bi-file-earmark"></i>
+                            <span class="file-name">${fileName}</span>
+                            <span class="file-size">${fileSize}</span>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="processBtn1">
+                            <i class="bi bi-cpu me-2"></i>Procesează documentul
+                        </button>
+                    `;
+
+                document.getElementById('processBtn1').addEventListener('click', function() {
+                    processExtractFile();
+                });
+            }
+        });
+
+        // Create tab event listeners
+        browseButton2.addEventListener('click', function() {
+            fileInput2.click();
+        });
+
+        fileInput2.addEventListener('change', function() {
+            if (fileInput2.files.length > 0) {
+                const fileName = fileInput2.files[0].name;
+                const fileSize = formatFileSize(fileInput2.files[0].size);
+
+                uploadArea2.innerHTML = `
+                        <i class="bi bi-file-earmark-check upload-icon"></i>
+                        <h3>Fișier selectat</h3>
+                        <div class="file-info">
+                            <i class="bi bi-file-earmark"></i>
+                            <span class="file-name">${fileName}</span>
+                            <span class="file-size">${fileSize}</span>
+                        </div>
+                    `;
+            }
+        });
+
+        uploadArea2.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea2.classList.add('dragover');
+        });
+
+        uploadArea2.addEventListener('dragleave', function() {
+            uploadArea2.classList.remove('dragover');
+        });
+
+        uploadArea2.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea2.classList.remove('dragover');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput2.files = e.dataTransfer.files;
+                const fileName = fileInput2.files[0].name;
+                const fileSize = formatFileSize(fileInput2.files[0].size);
+
+                uploadArea2.innerHTML = `
+                        <i class="bi bi-file-earmark-check upload-icon"></i>
+                        <h3>Fișier selectat</h3>
+                        <div class="file-info">
+                            <i class="bi bi-file-earmark"></i>
+                            <span class="file-name">${fileName}</span>
+                            <span class="file-size">${fileSize}</span>
+                        </div>
+                    `;
+            }
+        });
+
+        // Process extract file
+        function processExtractFile() {
+            // Show loading spinner
+            loadingSpinner1.style.display = 'block';
+
+            // Create FormData
+            const formData = new FormData();
+            formData.append('file', fileInput1.files[0]);
+
+            // Send AJAX request
+            fetch('/user/ocr/extract', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading spinner
+                    loadingSpinner1.style.display = 'none';
+
+                    // Show results
+                    ocrResults1.style.display = 'block';
+                    extractedText.textContent = data.extractedText || 'Nu s-a putut extrage text din document.';
+
+                    // Fill patient info if available
+                    if (data.patientInfo) {
+                        if (data.patientInfo.name) {
+                            const nameParts = data.patientInfo.name.split(' ', 2);
+                            if (nameParts.length > 1) {
+                                document.getElementById('nume').value = nameParts[0] || '';
+                                document.getElementById('prenume').value = nameParts[1] || '';
+                            } else {
+                                document.getElementById('nume').value = data.patientInfo.name || '';
+                            }
+                        }
+                        document.getElementById('cnp').value = data.patientInfo.cnp || '';
+                        document.getElementById('observatii').value = 'Extras din document OCR: ' +
+                            (data.extractedText && data.extractedText.length > 200 ?
+                                data.extractedText.substring(0, 200) + '...' :
+                                data.extractedText || '');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingSpinner1.style.display = 'none';
+                    alert('A apărut o eroare la procesarea fișierului. Vă rugăm să încercați din nou.');
+                });
+        }
+
+        // Download extracted text
+        downloadTextBtn.addEventListener('click', function() {
+            const text = extractedText.textContent;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'text_extras.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Reset forms
+        resetBtn1.addEventListener('click', function() {
+            resetExtractForm();
+        });
+
+        resetBtn2.addEventListener('click', function() {
+            createForm.reset();
+            uploadArea2.innerHTML = `
+                    <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                    <h3>Trageți și plasați fișierul aici</h3>
+                    <p>sau</p>
+                    <button type="button" class="btn btn-primary" id="browseButton2">
+                        <i class="bi bi-folder me-2"></i>Selectați fișierul
+                    </button>
+                    <input type="file" name="file" id="fileInput2" class="file-input" accept=".jpg,.jpeg,.png,.pdf" required />
+                    <p class="mt-3 text-muted">Formate acceptate: JPG, PNG, PDF</p>
+                `;
+
+            document.getElementById('browseButton2').addEventListener('click', function() {
+                document.getElementById('fileInput2').click();
+            });
+        });
+
+        function resetExtractForm() {
+            document.getElementById('patientForm').reset();
+            ocrResults1.style.display = 'none';
+            uploadArea1.innerHTML = `
+                    <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                    <h3>Trageți și plasați fișierul aici</h3>
+                    <p>sau</p>
+                    <button type="button" class="btn btn-primary" id="browseButton1">
+                        <i class="bi bi-folder me-2"></i>Selectați fișierul
+                    </button>
+                    <input type="file" id="fileInput1" class="file-input" accept=".jpg,.jpeg,.png,.pdf" />
+                    <p class="mt-3 text-muted">Formate acceptate: JPG, PNG, PDF</p>
+                `;
+
+            document.getElementById('browseButton1').addEventListener('click', function() {
+                document.getElementById('fileInput1').click();
+            });
+        }
+
+        // Helper function to format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+</script>
+</body>
+</html>

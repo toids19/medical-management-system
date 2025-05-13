@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Fragment for displaying field-specific validation errors -->
+<div th:fragment="fieldErrors(field)" class="invalid-feedback" th:if="${#fields.hasErrors(field)}" th:errors="*{__${field}__}">
+    Error message
+</div>
+
+<!-- Fragment for displaying global validation errors -->
+<div th:fragment="globalErrors" class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}">
+    <ul>
+        <li th:each="err : ${#fields.globalErrors()}" th:text="${err}">Global error</li>
+    </ul>
+</div>
+
+<!-- Fragment for displaying all validation errors -->
+<div th:fragment="allErrors" class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+    <ul>
+        <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Error message</li>
+    </ul>
+</div>
+</body>
+</html>

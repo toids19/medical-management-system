@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script>
+    // Apply theme immediately to prevent flash
+    (function() {
+      const savedTheme = localStorage.getItem("theme") || "light";
+      if (savedTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      } else if (savedTheme === "system") {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+      } else {
+        document.documentElement  prefersDark ? "dark" : "light");
+      } else {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+   </script>
+   <title th:text="#{settings.title}">Setări - Sistem de Management Medical</title>
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+   <link rel="stylesheet" th:href="@{/css/main.css}">
+   <style>
+       .settings-section {
+           margin-bottom: 2rem;
+       }
+       .theme-option {
+           display: inline-block;
+           width: 100px;
+           height: 80px;
+           margin-right: 15px;
+           border: 1px solid #ced4da;
+           border-radius: 8px;
+           overflow: hidden;
+           cursor: pointer;
+           position: relative;
+       }
+       .theme-option.active {
+           border: 2px solid #4CAF50;
+       }
+       .theme-preview {
+           width: 100%;
+           height: 100%;
+       }
+       .theme-light .theme-preview {
+           background: linear-gradient(to bottom, #f8f9fa 50%, #ffffff 50%);
+       }
+       .theme-dark .theme-preview {
+           background: linear-gradient(to bottom, #343a40 50%, #212529 50%);
+       }
+       .theme-system .theme-preview {
+           background: linear-gradient(135deg, #f8f9fa 50%, #212529 50%);
+       }
+       .theme-label {
+           text-align: center;
+           font-size: 0.8rem;
+           margin-top: 5px;
+       }
+   </style>
+</head>
+<body>
+   <div class="layout">
+       <!-- Sidebar -->
+       <aside class="sidebar">
+           <div class="sidebar-header">
+               <div class="sidebar-logo">
+                   <i class="bi bi-heart-pulse sidebar-logo-icon"></i>
+                   <span class="sidebar-logo-text">MedManager</span>
+               </div>
+               <button class="sidebar-toggle">
+                   <i class="bi bi-chevron-left"></i>
+               </button>
+           </div>
+           
+           <div class="sidebar-content">
+               <!-- Admin Menu -->
+               <div sec:authorize="hasRole('ADMIN')">
+                   <ul class="sidebar-menu">
+                       <li class="sidebar-menu-item">
+                           <a th:href="@{/admin/dashboard}" class="sidebar-menu-link">
+                               <i class="bi bi-speedometer2 sidebar-menu-icon"></i>
+                               <span class="sidebar-menu-text" th:text="#{nav.dashboard}">Panou de Control</span>
+                           </a>
+                       </li>
+                       <li class="sidebar-menu-item">
+                           <a th:href="@{/admin/users}" class="sidebar-menu-link">
+                               <i class="bi bi-people sidebar-menu-icon"></i>
+                               <span class="sidebar-menu-text" th:text="#{nav.users}">Utilizatori</span>
+                           </a>
+                       </li>
+                       <li class="sidebar-menu-item">
+                           <a th:href="@{/admin/pacienti}" class="sidebar-menu-link">
+                               <i class="bi bi-person-vcard sidebar-menu-icon"></i>
+                               <span class="sidebar-menu-text" th:text="#{nav.patients}">Pacienți</span>
+                           </a>
+                       </li>
+                       <li class="sidebar-menu-item">
+                           <a th:href="@{/admin/medicamente}" class="sidebar-menu-link">
+                               <i class="bi bi-capsule sidebar-menu-icon"></i>
+                               <span class="sidebar-menu-text" th:text="#{nav.medications}">Medicamente</span>
+                           </a>
+                       </li>
+                   </ul>
+               </div>
+               
+               <!-- User Menu -->
+               <div sec:authorize="hasRole('USER')">
+                   <ul class="sidebar-menu">
+                       <li class="sidebar-menu-item">
+                           <a th:href="@{/user/dashboard}" class="sidebar-menu-link">
+                               <i class="bi bi-speedometer2 sidebar-menu-icon"></i>
+                               <span class="sidebar-menu-text" th:text="#{nav.dashboard}">Panou de Control</span>
+                           </a>
+                       </li>
+                       <li class="sidebar-menu-item">
+                           <a th:href="@{/user/pacienti}" class="sidebar-menu-link">
+                               <i class="bi bi-person-vcard sidebar-menu-icon"></i>
+                               <span class="sidebar-menu-text" th:text="#{nav.patients}">Pacienți</span>
+                           </a>
+                       </li>
+                       <li class="sidebar-menu-item">
+                           <a th:href="@{/user/medicamente}" class="sidebar-menu-link">
+                               <i class="bi bi-capsule sidebar-menu-icon"></i>
+                               <span class="sidebar-menu-text" th:text="#{nav.medications}">Medicamente</span>
+                           </a>
+                       </li>
+                   </ul>
+               </div>
+               
+               <div class="sidebar-divider"></div>
+               
+               <ul class="sidebar-menu">
+                   <li class="sidebar-menu-item">
+                       <a th:href="@{/settings}" class="sidebar-menu-link active">
+                           <i class="bi bi-gear sidebar-menu-icon"></i>
+                           <span class="sidebar-menu-text" th:text="#{nav.settings}">Setări</span>
+                       </a>
+                   </li>
+                   <li class="sidebar-menu-item">
+                       <a th:href="@{/help}" class="sidebar-menu-link">
+                           <i class="bi bi-question-circle sidebar-menu-icon"></i>
+                           <span class="sidebar-menu-text" th:text="#{nav.help}">Ajutor</span>
+                       </a>
+                   </li>
+               </ul>
+           </div>
+           
+           <div class="sidebar-footer">
+               <form th:action="@{/logout}" method="post" style="width: 100%;">
+                   <button type="submit" class="btn btn-outline" style="width: 100%;">
+                       <i class="bi bi-box-arrow-right"></i>
+                       <span class="sidebar-menu-text" th:text="#{nav.logout}">Deconectare</span>
+                   </button>
+               </form>
+           </div>
+       </aside>
+       
+       <!-- Main Content -->
+       <div class="main-content">
+           <header class="header">
+               <h1 class="header-title" th:text="#{settings.title}">Setări</h1>
+               
+               <div class="header-actions">
+                   <div class="user-dropdown">
+                       <button class="user-dropdown-toggle">
+                           <div class="user-avatar">
+                               <span sec:authentication="name">U</span>
+                           </div>
+                           <i class="bi bi-chevron-down"></i>
+                       </button>
+                   </div>
+               </div>
+           </header>
+           
+           <main class="content">
+               <div class="card settings-section">
+                   <div class="card-header">
+                       <h2 class="card-title" th:text="#{settings.account}">Setări Cont</h2>
+                   </div>
+                   <div class="card-body">
+                       <form id="account-form">
+                           <div class="form-group">
+                               <label for="username" class="form-label" th:text="#{settings.username}">Nume Utilizator</label>
+                               <input type="text" id="username" class="form-control" disabled>
+                               <small class="text-muted" th:text="#{settings.username.cannot.change}">Numele de utilizator nu poate fi schimbat</small>
+                           </div>
+                           
+                           <div class="form-group">
+                               <label for="email" class="form-label" th:text="#{settings.email}">Adresă Email</label>
+                               <input type="email" id="email" class="form-control">
+                           </div>
+                           
+                           <div class="form-group">
+                               <label for="current-password" class="form-label" th:text="#{settings.current.password}">Parolă Curentă</label>
+                               <input type="password" id="current-password" class="form-control">
+                           </div>
+                           
+                           <div class="form-group">
+                               <label for="new-password" class="form-label" th:text="#{settings.new.password}">Parolă Nouă</label>
+                               <input type="password" id="new-password" class="form-control">
+                           </div>
+                           
+                           <div class="form-group">
+                               <label for="confirm-password" class="form-label" th:text="#{settings.confirm.password}">Confirmare Parolă Nouă</label>
+                               <input type="password" id="confirm-password" class="form-control">
+                           </div>
+                           
+                           <button type="submit" class="btn btn-primary" th:text="#{settings.save.changes}">Salvare Modificări</button>
+                       </form>
+                   </div>
+               </div>
+               
+               <div class="card settings-section">
+                   <div class="card-header">
+                       <h2 class="card-title" th:text="#{settings.notification}">Setări Notificări</h2>
+                   </div>
+                   <div class="card-body">
+                       <form id="notification-form">
+                           <div class="form-group">
+                               <div class="form-check">
+                                   <input type="checkbox" id="email-notifications" class="form-check-input">
+                                   <label for="email-notifications" class="form-check-label" th:text="#{settings.email.notifications}">Notificări Email</label>
+                                   <p class="text-muted" th:text="#{settings.email.notifications.desc}">Primește notificări prin email</p>
+                               </div>
+                           </div>
+                           
+                           <div class="form-group">
+                               <div class="form-check">
+                                   <input type="checkbox" id="system-notifications" class="form-check-input">
+                                   <label for="system-notifications" class="form-check-label" th:text="#{settings.system.notifications}">Notificări Sistem</label>
+                                   <p class="text-muted" th:text="#{settings.system.notifications.desc}">Primește notificări în cadrul sistemului</p>
+                               </div>
+                           </div>
+                           
+                           <div class="form-group">
+                               <div class="form-check">
+                                   <input type="checkbox" id="medication-alerts" class="form-check-input">
+                                   <label for="medication-alerts" class="form-check-label" th:text="#{settings.medication.alerts}">Alerte Medicamente</label>
+                                   <p class="text-muted" th:text="#{settings.medication.alerts.desc}">Primește alerte pentru medicamente cu stoc redus</p>
+                               </div>
+                           </div>
+                           
+                           <button type="submit" class="btn btn-primary" th:text="#{settings.save.preferences}">Salvare Preferințe</button>
+                       </form>
+                   </div>
+               </div>
+               
+               <div class="card settings-section">
+                   <div class="card-header">
+                       <h2 class="card-title" th:text="#{settings.display}">Setări Afișare</h2>
+                   </div>
+                   <div class="card-body">
+                       <form id="display-form">
+                           <div class="form-group">
+                               <label class="form-label" th:text="#{settings.theme}">Temă</label>
+                               <div>
+                                   <div class="theme-option theme-light theme-btn" id="theme-light">
+                                       <div class="theme-preview"></div>
+                                       <div class="theme-label" th:text="#{settings.theme.light}">Luminos</div>
+                                   </div>
+                                   <div class="theme-option theme-dark theme-btn" id="theme-dark">
+                                       <div class="theme-preview"></div>
+                                       <div class="theme-label" th:text="#{settings.theme.dark}">Întunecat</div>
+                                   </div>
+                                   <div class="theme-option theme-system theme-btn" id="theme-system">
+                                       <div class="theme-preview"></div>
+                                       <div class="theme-label" th:text="#{settings.theme.system}">Sistem</div>
+                                   </div>
+                               </div>
+                           </div>
+                           
+                           <div class="form-group">
+                               <label for="language" class="form-label" th:text="#{settings.language}">Limbă</label>
+                               <select id="language" class="form-select">
+                                   <option value="ro" th:selected="${#locale.language == 'ro'}">Română</option>
+                                   <option value="en" th:selected="${#locale.language == 'en'}">English</option>
+                               </select>
+                           </div>
+                           
+                           <div class="form-group">
+                               <label for="items-per-page" class="form-label" th:text="#{settings.items.per.page}">Elemente per pagină</label>
+                               <select id="items-per-page" class="form-select">
+                                   <option value="10">10</option>
+                                   <option value="25">25</option>
+                                   <option value="50">50</option>
+                                   <option value="100">100</option>
+                               </select>
+                           </div>
+                           
+                           <button type="submit" class="btn btn-primary" th:text="#{settings.apply.settings}">Aplică Setări</button>
+                       </form>
+                   </div>
+               </div>
+           </main>
+       </div>
+   </div>
+   
+   <script th:src="@{/js/main.js}"></script>
+   <script th:src="@{/js/settings.js}"></script>
+</body>
+</html>
+

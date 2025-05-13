@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div th:fragment="notifications">
+    <div class="notifications-dropdown">
+        <button id="notifications-toggle" class="notifications-toggle">
+            <i class="bi bi-bell"></i>
+            <span class="notifications-badge" th:if="${unreadCount > 0}" th:text="${unreadCount}">0</span>
+        </button>
+        <div id="notifications-menu" class="notifications-menu">
+            <div class="notifications-header">
+                <h3 th:text="#{notifications.title}">Notifications</h3>
+                <button id="mark-all-read" class="btn btn-sm btn-outline" th:if="${unreadCount > 0}" th:text="#{notifications.mark.all.read}">Mark all as read</button>
+            </div>
+            <div class="notifications-list">
+                <div th:if="${#lists.isEmpty(notifications)}" class="notification-empty" th:text="#{notifications.empty}">
+                    No notifications
+                </div>
+                <div th:each="notification : ${notifications}" th:class="${notification.isRead ? 'notification-item read' : 'notification-item'}" th:data-id="${notification.id}">
+                    <div class="notification-icon">
+                        <i th:class="${notification.type.name() == 'APPOINTMENT' ? 'bi bi-calendar-check' : (notification.type.name() == 'MEDICATION_STOCK' ? 'bi bi-capsule' : 'bi bi-check2-square')}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <p class="notification-message" th:text="${notification.message}">Notification message</p>
+                        <span class="notification-time" th:text="${#temporals.format(notification.createdAt, 'dd MMM yyyy HH:mm')}">Time</span>
+                    </div>
+                    <div class="notification-actions">
+                        <button class="mark-read-btn" th:if="${!notification.isRead}" title="Mark as read">
+                            <i class="bi bi-check-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="notifications-footer">
+                <a th:href="@{/notifications}" th:text="#{notifications.view.all}">View all notifications</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

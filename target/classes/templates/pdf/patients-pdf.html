@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Raport Pacienti</title>
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .report-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-bottom: 5px;
+        }
+        .report-date {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-bottom: 10px;
+        }
+        .summary {
+            background-color: #f1f5f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .summary-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: bold;
+            color: #334155;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 30px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+        }
+        .page-number {
+            text-align: right;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="logo">MedManager</div>
+    <div class="report-title">Raport Pacienti</div>
+    <div class="report-date">Generat la: <span th:text="${generatedDate}">2025-04-05 12:00:00</span></div>
+</div>
+
+<div class="summary">
+    <div class="summary-title">Sumar Raport</div>
+    <p>Total Pacienti: <strong th:text="${totalPatients}">0</strong></p>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Prenume</th>
+        <th>Nume</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="patient : ${patients}">
+        <td th:text="${patient.getPacientId()}">1</td>
+        <td th:text="${patient.getNume()}">John</td>
+        <td th:text="${patient.getPrenume()}">Doe</td>
+        <td>Activ</td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(patients)}">
+        <td colspan="4" style="text-align: center;">Nu s-au gasit pacienti</td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="page-number">Pagina 1</div>
+
+<div class="footer">
+    <p>Sistem de Management Medical © 2025 | Informatii Medicale Confidentiale</p>
+    <p>Acest raport contine informatii confidentiale despre pacienti. Va rugam sa il tratati cu grija si in conformitate cu reglementarile privind confidentialitatea.</p>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat System</title>
+    <link rel="stylesheet" th:href="@{/css/chat.css}">
+    <meta name="username" th:content="${username}">
+    <meta name="userRole" th:content="${userRole}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<div class="chat-container fullscreen">
+    <div class="chat-header">
+        <a href="javascript:history.back()" class="back-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </a>
+        <h1>Chat System</h1>
+        <div class="user-info" th:text="${username}">Username</div>
+    </div>
+
+    <div class="chat-content">
+        <div class="chat-sidebar">
+            <div class="chat-sidebar-header">
+                <h2>Utilizatori online</h2>
+            </div>
+            <div class="user-list" id="userList">
+                <!-- Users will be populated here dynamically -->
+            </div>
+        </div>
+
+        <div class="chat-main">
+            <div class="chat-tabs">
+                <button class="tab-button active" onclick="openTab('chatTab')">Chat Public</button>
+                <button class="tab-button" onclick="openTab('privateTab')">Mesaje Private</button>
+                <button class="tab-button" onclick="openTab('announcementsTab')">Anunțuri</button>
+                <button class="tab-button" onclick="openTab('aiAssistantTab')">Asistent AI</button>
+            </div>
+
+            <div id="chatTab" class="tab-content active">
+                <div class="message-container" id="messageArea">
+                    <!-- Messages will be populated here -->
+                    <div th:each="message : ${recentMessages}" th:if="${message.type.name() == 'CHAT'}"
+                         th:class="${message.sender == username ? 'message sent' : 'message received'}">
+                        <div class="message-sender" th:if="${message.sender != username}" th:text="${message.sender}"></div>
+                        <div class="message-content" th:text="${message.content}"></div>
+                        <div class="message-time" th:text="${#temporals.format(message.timestamp, 'HH:mm')}"></div>
+                    </div>
+                </div>
+                <div class="message-input">
+                    <input type="text" id="message" placeholder="Scrie un mesaj..." autocomplete="off"/>
+                    <button id="sendButton" class="btn btn-primary">Trimite</button>
+                </div>
+            </div>
+
+            <div id="privateTab" class="tab-content">
+                <div class="private-header">
+                    <select id="recipientSelect" class="form-select">
+                        <option value="">Selectează un utilizator</option>
+                    </select>
+                </div>
+                <div class="message-container" id="privateMessageArea">
+                    <!-- Private messages will be populated here -->
+                    <div class="center-message">Selectează un utilizator pentru a începe o conversație privată</div>
+                </div>
+                <div class="message-input">
+                    <input type="text" id="privateMessage" placeholder="Scrie un mesaj privat..." autocomplete="off" disabled/>
+                    <button id="sendPrivateButton" class="btn btn-primary" disabled>Trimite</button>
+                </div>
+            </div>
+
+            <div id="announcementsTab" class="tab-content">
+                <div class="message-container" id="announcementArea">
+                    <!-- Announcements will be populated here -->
+                    <div th:each="message : ${recentMessages}" th:if="${message.type.name() == 'ANNOUNCEMENT'}" class="announcement">
+                        <div class="sender" th:text="${message.sender}"></div>
+                        <div class="content" th:text="${message.content}"></div>
+                        <div class="time" th:text="${#temporals.format(message.timestamp, 'HH:mm')}"></div>
+                    </div>
+                </div>
+                <div class="message-input" sec:authorize="hasRole('ROLE_ADMIN')">
+                    <input type="text" id="announcement" placeholder="Scrie un anunț..." autocomplete="off"/>
+                    <button id="announceButton" class="btn btn-primary">Anunță</button>
+                </div>
+                <div class="message-input" sec:authorize="!hasRole('ROLE_ADMIN')">
+                    <div class="centered-message">Doar administratorii pot publica anunțuri</div>
+                </div>
+            </div>
+
+            <div id="aiAssistantTab" class="tab-content">
+                <div class="message-container" id="aiMessageArea">
+                    <div class="ai-message">
+                        <p>Bună ziua! Sunt asistentul AI. Vă pot ajuta cu informații medicale în limba română. Cum vă pot ajuta astăzi?</p>
+                    </div>
+                </div>
+                <div class="message-input">
+                    <input type="text" id="aiMessage" placeholder="Întreabă asistentul..." autocomplete="off"/>
+                    <button id="askAiButton" class="btn btn-primary">Întreabă</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/chat.js}"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Patient - Medical Management System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="bi bi-heart-pulse sidebar-logo-icon"></i>
+                    <span class="sidebar-logo-text">MedManager</span>
+                </div>
+                <button class="sidebar-toggle">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-content">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/admin/dashboard}" class="sidebar-menu-link">
+                            <i class="bi bi-speedometer2 sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/admin/users}" class="sidebar-menu-link">
+                            <i class="bi bi-people sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Users</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/admin/pacienti}" class="sidebar-menu-link active">
+                            <i class="bi bi-person-vcard sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Patients</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/admin/medicamente}" class="sidebar-menu-link">
+                            <i class="bi bi-capsule sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Medications</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/chat}" class="sidebar-menu-link">
+                            <i class="bi bi-chat-dots sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Chat</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="sidebar-divider"></div>
+                
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/settings}" class="sidebar-menu-link">
+                            <i class="bi bi-gear sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Settings</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/help}" class="sidebar-menu-link">
+                            <i class="bi bi-question-circle sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Help</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post" style="width: 100%;">
+                    <button type="submit" class="btn btn-outline" style="width: 100%;">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="sidebar-menu-text">Logout</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="header">
+    <h1 class="header-title">Edit Patient</h1>
+    
+    <div class="header-actions">
+        <div class="user-dropdown">
+            <button class="user-dropdown-toggle">
+                <div class="user-avatar">
+                    <span sec:authentication="name">U</span>
+                </div>
+                <i class="bi bi-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+</header>
+            
+            <main class="content">
+                <div class="card" style="max-width: 600px; margin: 0 auto;">
+                    <div class="card-header">
+                        <h2 class="card-title">Edit Patient Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/pacienti/edit/{id}(id=${patient.pacientId})}" method="post">
+                            <input type="hidden" name="pacientId" th:value="${patient.pacientId}"/>
+                            
+                            <div class="form-group">
+                                <label for="nume" class="form-label">First Name</label>
+                                <input type="text" id="nume" name="nume" th:value="${patient.nume}" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="prenume" class="form-label">Last Name</label>
+                                <input type="text" id="prenume" name="prenume" th:value="${patient.prenume}" class="form-control" required>
+                            </div>
+                            
+                            <div class="flex gap-2 mt-4">
+                                <button type="submit" class="btn btn-success">Update Patient</button>
+                                <a href="/admin/pacienti" class="btn btn-outline">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>
+

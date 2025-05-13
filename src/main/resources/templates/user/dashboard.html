@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Apply theme immediately to prevent flash
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            if (savedTheme === "dark") {
+                document.documentElement.setAttribute("data-theme", "dark");
+            } else if (savedTheme === "system") {
+                const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+            } else {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
+        })();
+    </script>
+    <title>User Dashboard - Medical Management System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/notifications.css}">
+</head>
+<body>
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="bi bi-heart-pulse sidebar-logo-icon"></i>
+                <span class="sidebar-logo-text">MedManager</span>
+            </div>
+            <button class="sidebar-toggle">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-content">
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item">
+                    <a th:href="@{/user/dashboard}" class="sidebar-menu-link active">
+                        <i class="bi bi-speedometer2 sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text" th:text="#{nav.dashboard}">Panou de Control</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a th:href="@{/user/pacienti}" class="sidebar-menu-link">
+                        <i class="bi bi-person-vcard sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text" th:text="#{nav.patients}">Pacienți</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a th:href="@{/user/medicamente}" class="sidebar-menu-link">
+                        <i class="bi bi-capsule sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text" th:text="#{nav.medications}">Medicamente</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a th:href="@{/user/ocr}" class="sidebar-menu-link">
+                        <i class="bi bi-file-earmark-text sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text">OCR</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a th:href="@{/chat}" class="sidebar-menu-link">
+                        <i class="bi bi-chat-dots sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text">Chat</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item">
+                    <a th:href="@{/settings}" class="sidebar-menu-link">
+                        <i class="bi bi-gear sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text" th:text="#{nav.settings}">Setări</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a th:href="@{/help}" class="sidebar-menu-link">
+                        <i class="bi bi-question-circle sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text" th:text="#{nav.help}">Ajutor</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post" style="width: 100%;">
+                <button type="submit" class="btn btn-outline" style="width: 100%;">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="sidebar-menu-text" th:text="#{nav.logout}">Deconectare</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="header">
+
+            <h1 class="header-title">Panou de Control Medic</h1>
+
+            <div class="header-actions">
+                <!-- Notifications -->
+                <div th:replace="fragments/notifications :: notifications"></div>
+
+                <div class="user-dropdown">
+                    <button class="user-dropdown-toggle">
+                        <div class="user-avatar">
+                            <span sec:authentication="name">U</span>
+                        </div>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="stats-card">
+                        <div class="stats-icon primary">
+                            <i class="bi bi-person-vcard"></i>
+                        </div>
+                        <div class="stats-content">
+                            <div class="stats-value">42</div>
+                            <div class="stats-label">Pacienții Dvs.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="stats-card">
+                        <div class="stats-icon secondary">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        <div class="stats-content">
+                            <div class="stats-value">8</div>
+                            <div class="stats-label">Programări Astăzi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="stats-card">
+                        <div class="stats-icon success">
+                            <i class="bi bi-capsule"></i>
+                        </div>
+                        <div class="stats-content">
+                            <div class="stats-value">24</div>
+                            <div class="stats-label">Medicamente Prescrise</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="stats-card">
+                        <div class="stats-icon warning">
+                            <i class="bi bi-bell"></i>
+                        </div>
+                        <div class="stats-content">
+                            <div class="stats-value">3</div>
+                            <div class="stats-label">Sarcini în Așteptare</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="card-title">Programul de Astăzi</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Ora</th>
+                                <th>Pacient</th>
+                                <th>Tip</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>09:00</td>
+                                <td>John Doe</td>
+                                <td>Control</td>
+                                <td><span class="badge bg-success">Finalizat</span></td>
+                            </tr>
+                            <tr>
+                                <td>10:30</td>
+                                <td>Jane Smith</td>
+                                <td>Urmărire</td>
+                                <td><span class="badge bg-success">Finalizat</span></td>
+                            </tr>
+                            <tr>
+                                <td>13:00</td>
+                                <td>Robert Johnson</td>
+                                <td>Consultație</td>
+                                <td><span class="badge bg-warning">În Desfășurare</span></td>
+                            </tr>
+                            <tr>
+                                <td>15:30</td>
+                                <td>Emily Davis</td>
+                                <td>Control</td>
+                                <td><span class="badge bg-secondary">Programat</span></td>
+                            </tr>
+                            <tr>
+                                <td>16:45</td>
+                                <td>Michael Wilson</td>
+                                <td>Urmărire</td>
+                                <td><span class="badge bg-secondary">Programat</span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Pacienți Recenți</h2>
+                    <a th:href="@{/user/pacienti}" class="btn btn-sm btn-outline">Vizualizează Tot</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Nume</th>
+                                <th>Ultima Vizită</th>
+                                <th>Status</th>
+                                <th>Acțiuni</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>John Doe</td>
+                                <td>Astăzi</td>
+                                <td>Control finalizat</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline">Vizualizare Detalii</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Jane Smith</td>
+                                <td>Astăzi</td>
+                                <td>Urmărire finalizată</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline">Vizualizare Detalii</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Robert Johnson</td>
+                                <td>Astăzi</td>
+                                <td>În consultație</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline">Vizualizare Detalii</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/notifications.js}"></script>
+</body>
+</html>
+

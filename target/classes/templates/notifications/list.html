@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Apply theme immediately to prevent flash
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            if (savedTheme === "dark") {
+                document.documentElement.setAttribute("data-theme", "dark");
+            } else if (savedTheme === "system") {
+                const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+            } else {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
+        })();
+    </script>
+    <title th:text="#{notifications.title}">Notifications - Medical Management System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/notifications.css}">
+</head>
+<body>
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="bi bi-heart-pulse sidebar-logo-icon"></i>
+                <span class="sidebar-logo-text">MedManager</span>
+            </div>
+            <button class="sidebar-toggle">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-content">
+            <!-- Admin Menu -->
+            <div sec:authorize="hasRole('ADMIN')">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/admin/dashboard}" class="sidebar-menu-link">
+                            <i class="bi bi-speedometer2 sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text" th:text="#{nav.dashboard}">Panou de Control</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/admin/users}" class="sidebar-menu-link">
+                            <i class="bi bi-people sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text" th:text="#{nav.users}">Utilizatori</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/admin/pacienti}" class="sidebar-menu-link">
+                            <i class="bi bi-person-vcard sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text" th:text="#{nav.patients}">Pacienți</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/admin/medicamente}" class="sidebar-menu-link">
+                            <i class="bi bi-capsule sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text" th:text="#{nav.medications}">Medicamente</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- User Menu -->
+            <div sec:authorize="hasRole('USER')">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/user/dashboard}" class="sidebar-menu-link">
+                            <i class="bi bi-speedometer2 sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text" th:text="#{nav.dashboard}">Panou de Control</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/user/pacienti}" class="sidebar-menu-link">
+                            <i class="bi bi-person-vcard sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text" th:text="#{nav.patients}">Pacienți</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a th:href="@{/user/medicamente}" class="sidebar-menu-link">
+                            <i class="bi bi-capsule sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text" th:text="#{nav.medications}">Medicamente</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item">
+                    <a th:href="@{/settings}" class="sidebar-menu-link">
+                        <i class="bi bi-gear sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text" th:text="#{nav.settings}">Setări</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a th:href="@{/help}" class="sidebar-menu-link">
+                        <i class="bi bi-question-circle sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text" th:text="#{nav.help}">Ajutor</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a th:href="@{/notifications}" class="sidebar-menu-link">
+                        <i class="bi bi-bell sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text" th:text="#{notifications.title}">Notificări</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post" style="width: 100%;">
+                <button type="submit" class="btn btn-outline" style="width: 100%;">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="sidebar-menu-text" th:text="#{nav.logout}">Deconectare</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="header">
+            <h1 class="header-title" th:text="#{notifications.title}">Notifications</h1>
+
+            <div class="header-actions">
+                <div class="user-dropdown">
+                    <button class="user-dropdown-toggle">
+                        <div class="user-avatar">
+                            <span sec:authentication="name">U</span>
+                        </div>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title" th:text="#{notifications.all}">All Notifications</h2>
+                    <div class="flex gap-2">
+                        <button id="mark-all-read" class="btn btn-sm btn-outline" th:if="${unreadCount > 0}" th:text="#{notifications.mark.all.read}">Mark all as read</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="notifications-list-full">
+                        <div th:if="${#lists.isEmpty(notifications)}" class="notification-empty" th:text="#{notifications.empty}">
+                            No notifications
+                        </div>
+                        <div th:each="notification : ${notifications}" th:class="${notification.isRead ? 'notification-item read' : 'notification-item'}" th:data-id="${notification.id}" th:data-link="${notification.link}">
+                            <div class="notification-icon">
+                                <i th:class="${notification.type.name() == 'APPOINTMENT' ? 'bi bi-calendar-check' : (notification.type.name() == 'MEDICATION_STOCK' ? 'bi bi-capsule' : 'bi bi-check2-square')}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="notification-message" th:text="${notification.message}">Notification message</p>
+                                <span class="notification-time" th:text="${#temporals.format(notification.createdAt, 'dd MMM yyyy HH:mm')}">Time</span>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="mark-read-btn" th:if="${!notification.isRead}" title="Mark as read">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/notifications.js}"></script>
+</body>
+</html>
+

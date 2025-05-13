@@ -1,0 +1,42 @@
+Abstract:
+
+This third assignment enhances the existing medical records application by introducing three new non-CRUD functionalities and robust backend validation.
+First, a real-time notification subsystem powered by Spring WebSockets enables public chat, private messaging, and announcements among authenticated users.
+Second, an AI assistant interface leverages OpenAI’s ChatGPT to provide context-sensitive guidance.
+Third, OCR-based text recognition for medical documents uses the Tesseract OCR engine (through the Tess4J wrapper) to extract and index text from uploaded scans.
+All new input flows are secured with server-side validation using Jakarta Bean Validation annotations, ensuring data integrity and preventing malformed or malicious requests.
+
+1. Real-Time Notification Subsystem
+
+   *WebSocket Configuration: Configured `WebSocketMessageBrokerConfigurer` with STOMP over SockJS on `/ws` endpoints and message broker destinations `/topic` and `/queue`.
+   *Public Chat: Implemented `@MessageMapping("/chat.sendMessage")` in `ChatController`, broadcasting `ChatMessage` DTOs to `/topic/public` via `SimpMessagingTemplate.convertAndSend()`.
+   *Private Messaging: Mapped `@MessageMapping("/chat.sendPrivateMessage")` to handle one-to-one messages, using `convertAndSendToUser(username, "/queue/private", chatMessage)` to deliver to `/user/{username}/queue/private`.
+   *Announcements: Added `@MessageMapping("/chat.sendAnnouncement")` to publish system-wide announcements to `/chat`, consumed by front-end listeners in React.
+
+2. AI Assistant Integration
+
+   *OpenAI Java SDK: Added the `com.openai:openai-client` dependency in `pom.xml`, configured API key in `application.properties`, and created `AiService` to call `ChatCompletion` APIs.
+   *Service Layer: `AiService` constructs `ChatCompletionRequest` objects (model `gpt-4-architecture`), sends user prompts, and parses `ChatCompletionResponse` for display.
+   *Controller Endpoint: Exposed `POST /api/ai/chat` in `AiController`, annotated with `@Valid` on `AiRequestDTO` to validate prompt length and content.
+   *UI Component**: Developed a ChatGPT widget in React, posting user questions to `/chat` and streaming assistant replies with `useEffect` hooks.
+
+3. OCR-Based Text Recognition
+
+   *Tess4J Integration: Imported `net.sourceforge.tess4j:tess4j` in `pom.xml`, configured OCR engine path via `application.properties`.
+   *Document Upload: Doctors upload medical scans in the React UI; files are posted to `POST /api/documents/upload`, in JPG, PNG or PDF format.
+   *OCR Processing: `OcrService` loads images, performs `new Tesseract().doOCR()`, and returns extracted text into `DocumentText` entities.
+
+4. Backend Validation
+
+   *Jakarta Bean Validation: Annotated DTO classes with `@NotNull`, `@Size`, `@Pattern`, and custom `@ValidDocumentType` to enforce file formats and field constraints.
+   *Controller-Level Validation: Added `@Validated` on controller classes; method parameters wrapped with `@Valid` trigger automatic validation.
+   *Global Exception Handling: Implemented `@ControllerAdvice` with `@ExceptionHandler(MethodArgumentNotValidException.class)` to format and return structured JSON error responses.
+
+5. Full-Stack Integration
+
+   * Ensured seamless data flow between React front end and Spring Boot back end using RESTful APIs and WebSocket channels.
+   * Centralized configuration in `application.properties` for API keys and WebSocket settings promotes maintainability.
+   * Leveraged TypeScript interfaces to mirror Java DTOs, guaranteeing type safety across the stack.
+
+In summary, Assignment 3 introduces comprehensive, user-centric features—real-time messaging, AI-driven assistance, and intelligent document parsing—while enforcing strict server-side validation.
+ This delivers a secure, high-performing application foundation for future expansion.
