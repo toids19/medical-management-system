@@ -61,7 +61,7 @@ This project enhances medical data management by integrating real-time communica
 
 This project requires the following dependencies:
 
-- **Programming Language:** HTML
+- **Programming Language:** Java, HTML
 - **Package Manager:** Npm, Maven
 
 ### Installation
@@ -108,23 +108,3 @@ npm start
 mvn exec:java
 ```
 
-### Testing
-
-Medical-management-system uses the {__test_framework__} test framework. Run the test suite with:
-
-**Using [npm](https://www.npmjs.com/):**
-
-```sh
-npm test
-```
-**Using [maven](https://maven.apache.org/):**
-
-```sh
-mvn test
-```
-
----
-
-<div align="left"><a href="#top">⬆ Return</a></div>
-
----
